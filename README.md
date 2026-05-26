@@ -2,19 +2,9 @@
 
 ---
 
-## 1. Descripción del Cliente
+## 1. Descripción de la empresa
 
-El cliente ficticio propuesto para este proyecto es el **Ministerio de Trabajo y Promoción del Empleo del Perú (MTPE)**. Esta entidad es la responsable de formular, coordinar y supervisar las políticas nacionales en materia de empleo, capacitación laboral, seguridad social y fomento de la formalización del trabajo.
-
-### 1.1 Contexto y necesidad
-
-El MTPE maneja anualmente grandes volúmenes de información estadística sobre el mercado laboral peruano, principalmente a través de la Encuesta Nacional de Hogares (ENAHO) producida por el INEI. Sin embargo, el acceso a estos datos se realiza comúnmente mediante consulta directa de microdatos crudos, sin un sistema analítico que permita responder preguntas operativas de manera ágil y consistente.
-
-Los equipos técnicos del Ministerio requieren cruzar variables de empleo, ingresos, formalidad, tipo de contrato y cobertura de seguridad social con información geográfica y sectorial — tareas que actualmente consumen tiempo excesivo y generan inconsistencias entre áreas.
-
-### 1.2 Preguntas de negocio que guían el proyecto
-
-El producto final debe permitir al cliente responder, de manera rápida e interactiva, las siguientes preguntas clave:
+La empresa propuesta para este proyecto es el **Ministerio de Trabajo y Promoción del Empleo del Perú (MTPE)**. Esta entidad es la responsable de formular, coordinar y supervisar las políticas nacionales en materia de empleo, capacitación laboral, seguridad social y fomento de la formalización del trabajo. El MTPE maneja anualmente grandes volúmenes de información estadística sobre el mercado laboral peruano, principalmente a través de la Encuesta Nacional de Hogares (ENAHO) producida por el INEI. Sin embargo, el acceso a estos datos se realiza comúnmente mediante consulta directa de microdatos crudos, sin un sistema analítico que permita responder preguntas operativas de manera ágil y consistente. Los equipos técnicos del Ministerio requieren cruzar variables de empleo, ingresos, formalidad, tipo de contrato y cobertura de seguridad social con información geográfica y sectorial — tareas que actualmente consumen tiempo excesivo y generan inconsistencias entre áreas. Los servidores públicos necesitan responder, de manera rápida e interactiva, las siguientes preguntas clave:
 
 - ¿En qué departamentos y dominios geográficos (urbano/rural) se concentra la mayor tasa de empleo informal?
 - ¿Cuál es el ingreso mensual promedio por sector económico, categoría ocupacional y tipo de contrato?
@@ -22,8 +12,6 @@ El producto final debe permitir al cliente responder, de manera rápida e intera
 - ¿Qué tan extendida está la subocupación por horas (trabajadores que desean laborar más horas de las que trabajan)?
 - ¿Cómo varía el acceso a seguro de salud y AFP según el tamaño de empresa y la formalidad tributaria?
 - ¿Cómo han evolucionado estos indicadores a lo largo del tiempo, comparando periodos anuales?
-
----
 
 ## 2. Planteamiento del Problema
 
