@@ -1,7 +1,5 @@
 # Datamart de Calidad del Empleo e Ingresos Laborales
 
-> **Propuesta de Proyecto — Business Intelligence**  
-
 ---
 
 ## 1. Descripción del Cliente
