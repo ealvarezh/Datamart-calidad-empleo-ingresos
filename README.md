@@ -116,7 +116,7 @@ El modelo adoptado es el **esquema estrella (star schema)**, con una fact table 
 
 | Columna | Descripción |
 |---|---|
-| `id_tiempo` (PK) | Llave surrogada |
+| `id_tiempo` (PK) | Llave primaria |
 | `anio` | Año de la encuesta (2024, 2023, ...) |
 | `mes` | Mes de la encuesta (1–12) |
 | `trimestre` | Trimestre derivado del mes |
@@ -128,7 +128,7 @@ Se opta por una única dimensión geográfica con todos los niveles jerárquicos
 
 | Columna | Descripción |
 |---|---|
-| `id_geografia` (PK) | Llave surrogada |
+| `id_geografia` (PK) | Llave primaria |
 | `ubigeo` | Código UBIGEO de 6 dígitos (región + departamento + provincia + distrito) |
 | `region` | Región macrogeográfica del Perú |
 | `departamento` | Departamento (nivel principal de análisis del MTPE) |
@@ -143,7 +143,7 @@ Esta dimensión concentra los atributos que determinan la calidad formal del ví
 
 | Columna | Descripción |
 |---|---|
-| `id_tipo_empleo` (PK) | Llave surrogada |
+| `id_tipo_empleo` (PK) | Llave primaria |
 | `categoria_ocupacional` | Empleador, Trabajador independiente, Empleado, Obrero, TFNR, Trabajador del hogar |
 | `tipo_empleador` | Fuerzas Armadas/PNP, Administración Pública, Empresa Pública, Empresa Privada, SERVICE |
 | `formalidad_sunat` | Persona Jurídica, Persona Natural con RUC, No registrado. Indicador de formalidad tributaria. |
@@ -155,7 +155,7 @@ Esta dimensión concentra los atributos que determinan la calidad formal del ví
 
 | Columna | Descripción |
 |---|---|
-| `id_ocupacion` (PK) | Llave surrogada |
+| `id_ocupacion` (PK) | Llave primaria |
 | `cod_ocupacion_cno` | Código CNO-2015 de la ocupación principal |
 | `descripcion_ocupacion` | Descripción de la ocupación según CNO-2015 |
 | `grupo_ocupacional` | Agrupación de primer dígito CNO: Profesionales, Técnicos, Operarios, etc. |
@@ -164,7 +164,7 @@ Esta dimensión concentra los atributos que determinan la calidad formal del ví
 
 | Columna | Descripción |
 |---|---|
-| `id_sector` (PK) | Llave surrogada |
+| `id_sector` (PK) | Llave primaria |
 | `cod_ciiu_r4` | Código CIIU revisión 4 de la actividad económica del empleador |
 | `descripcion_actividad` | Descripción de la actividad económica |
 | `sector_agrupado` | Agrupación macrosectorial: Agropecuario, Minería, Manufactura, Comercio, Servicios, Construcción |
@@ -176,7 +176,7 @@ Esta dimensión almacena el perfil demográfico del trabajador encuestado, que p
 
 | Columna | Descripción |
 |---|---|
-| `id_trabajador` (PK) | Llave surrogada |
+| `id_trabajador` (PK) | Llave primaria |
 | `sexo` | Masculino / Femenino |
 | `edad` | Edad en años cumplidos al momento de la encuesta |
 | `grupo_etario` | Joven (14–24), Adulto joven (25–44), Adulto (45–64), Adulto mayor (65+) |
@@ -189,7 +189,7 @@ Dimensión externa construida a partir de publicaciones oficiales del MEF, SUNAT
 
 | Columna | Descripción |
 |---|---|
-| `id_ref_economica` (PK) | Llave surrogada |
+| `id_ref_economica` (PK) | Llave primaria |
 | `anio` | Año de vigencia del indicador |
 | `mes` | Mes de vigencia (para RMV con vigencia mensual) |
 | `rmv_soles` | Remuneración Mínima Vital vigente en soles. Fuente: MTPE. |
