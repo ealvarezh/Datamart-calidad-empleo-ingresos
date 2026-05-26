@@ -12,7 +12,7 @@ La empresa propuesta para este proyecto es el **Ministerio de Trabajo y Promoci�
 - ¿Qué tan extendida está la subocupación por horas (trabajadores que desean laborar más horas de las que trabajan)?
 - ¿Cómo varía el acceso a seguro de salud y AFP según el tamaño de empresa y la formalidad tributaria?
 - ¿Cómo han evolucionado estos indicadores a lo largo del tiempo, comparando periodos anuales?
-
+A partir de estas preguntas clave, se formaliza el problema de negocio, se identifican las fuentes de datos requeridas, y se propone una solución basada en Business Intelligence.
 ## 2. Planteamiento del Problema
 
 > **Enunciado del problema:** El MTPE requiere un sistema analítico que permita monitorear la calidad del empleo y los niveles de ingreso laboral en el Perú, a partir de los microdatos de la ENAHO 2024 (Módulo 500: Empleo e Ingresos), complementados con indicadores macroeconómicos de referencia (RMV, UIT, Canasta Básica de Consumo). El datamart debe responder preguntas sobre informalidad laboral, subocupación por horas, distribución del ingreso relativo a la RMV y acceso a beneficios laborales, segmentadas por ocupación, sector económico, territorio y perfil demográfico del trabajador.
