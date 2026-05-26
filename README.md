@@ -12,6 +12,7 @@ La empresa propuesta para este proyecto es el **Ministerio de Trabajo y Promoci�
 - ¿Qué tan extendida está la subocupación por horas (trabajadores que desean laborar más horas de las que trabajan)?
 - ¿Cómo varía el acceso a seguro de salud y AFP según el tamaño de empresa y la formalidad tributaria?
 - ¿Cómo han evolucionado estos indicadores a lo largo del tiempo, comparando periodos anuales?
+
 A partir de estas preguntas clave, se formaliza el problema de negocio, se identifican las fuentes de datos requeridas, y se propone una solución basada en Business Intelligence.
 ## 2. Planteamiento del Problema
 
