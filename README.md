@@ -189,17 +189,7 @@ Dimensión externa construida a partir de publicaciones oficiales del MEF, SUNAT
 
 ## 5. Decisiones de Diseño del Modelo
 
-Las decisiones de diseño del datamart están orientadas por las necesidades específicas del cliente y no por la estructura original de los datos fuente.
-
-- **Dimensión geográfica unificada:** Se opta por una única `Dim_Geografia` con todos los niveles jerárquicos (región, departamento, provincia, dominio) en lugar de dimensiones separadas. El MTPE analiza principalmente a nivel de departamento y dominio geográfico, por lo que la consolidación simplifica el modelo sin perder capacidad analítica.
-
-- **`flag_formal` como atributo de dimensión y no de hecho:** La condición de formalidad (formal/informal) es una característica cualitativa del puesto de trabajo, no una métrica numérica aditiva. Por ello se ubica en `Dim_Tipo_Empleo` como atributo derivado (combinación de contrato escrito + registro SUNAT), lo que permite filtrar y segmentar, pero no sumar.
-
-- **Métricas derivadas calculadas en ETL:** Las columnas `ratio_ingreso_rmv` y `ratio_ingreso_cbc` se calculan durante el proceso de carga y se almacenan en la tabla de hechos. Esto evita cálculos en tiempo de consulta en Power BI y garantiza consistencia en todos los reportes.
-
-- **Variables imputadas preferidas sobre crudas:** Para las horas trabajadas se utiliza la versión imputada (`I513T`) en lugar de la cruda (`P513T`), dado que el INEI aplica procedimientos estadísticos para completar valores faltantes de forma consistente con el diseño muestral.
-
-- **Factor de expansión obligatorio:** La variable `FAC500A` se incluye como métrica en la tabla de hechos y su uso es obligatorio en todas las medidas agregadas del dashboard. Sin este factor, los resultados no son representativos a nivel nacional ni departamental.
+Las decisiones de diseño del datamart están orientadas por las necesidades específicas del MTPE. Se opta por una única `Dim_Geografia` con todos los niveles jerárquicos (región, departamento, provincia, dominio). El MTPE analiza principalmente a nivel de departamento y dominio geográfico, por lo que la consolidación simplifica el modelo sin perder capacidad analítica. La condición de formalidad (formal/informal) es una característica cualitativa del puesto de trabajo, no una métrica numérica aditiva. Por ello se ubica en `Dim_Tipo_Empleo` como atributo derivado (combinación de contrato escrito + registro SUNAT), lo que permite filtrar y segmentar, pero no sumar. Las columnas `ratio_ingreso_rmv` y `ratio_ingreso_cbc` se calculan durante el proceso de carga y se almacenan en la tabla de hechos. Esto evita cálculos en tiempo de consulta en Power BI y garantiza consistencia en todos los reportes. Además, para las horas trabajadas se utiliza la versión imputada (`I513T`) en lugar de la cruda (`P513T`), dado que el INEI aplica procedimientos estadísticos para completar valores faltantes de forma consistente con el diseño muestral. La variable `FAC500A` se incluye como métrica en la tabla de hechos y su uso es obligatorio en todas las medidas agregadas del dashboard. Sin este factor, los resultados no son representativos a nivel nacional ni departamental.
 
 ---
 
