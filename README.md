@@ -1,20 +1,6 @@
 # Datamart de Calidad del Empleo e Ingresos Laborales
 
 > **Propuesta de Proyecto — Business Intelligence**  
----
-
-## Ficha del Proyecto
-
-| Campo | Detalle |
-|---|---|
-| **Cliente objetivo** | Ministerio de Trabajo y Promoción del Empleo (MTPE) |
-| **Tipo de producto** | Datamart + Dashboard en Power BI |
-| **Fuente principal** | ENAHO 2024 — Módulo 500: Empleo e Ingresos (INEI) |
-| **Fuente complementaria** | RMV / UIT histórica — MEF / SUNAT + Canasta Básica — INEI |
-| **Enfoque temático** | Calidad del empleo, informalidad laboral e ingresos relativos |
-| **Modelo dimensional** | Esquema estrella — 1 tabla de hechos, 7 dimensiones |
-
----
 
 ---
 
