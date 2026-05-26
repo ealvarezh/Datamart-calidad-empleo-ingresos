@@ -81,14 +81,6 @@ Para enriquecer el análisis e incorporar referencia macroeconómica, se integra
 
 Esta información se integra como `Dim_Ref_Economica` y permite al ETL calcular directamente en la tabla de hechos las métricas derivadas `ratio_ingreso_rmv` y `ratio_ingreso_cbc` sin necesidad de lógica adicional en Power BI.
 
-#### Dónde obtener estas fuentes
-
-| Indicador | Fuente | URL |
-|---|---|---|
-| RMV histórica | MTPE | gob.pe/mtpe → buscar "remuneración mínima vital" |
-| UIT histórica | SUNAT / MEF | sunat.gob.pe → buscar "UIT" |
-| Canasta Básica de Consumo | INEI | inei.gob.pe → Estadísticas → Condiciones de vida y pobreza |
-
 ---
 
 ## 4. Modelo Dimensional
