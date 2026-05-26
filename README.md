@@ -59,26 +59,26 @@ El archivo utilizado es `ENAHO01A-2024-500.SAV` (disponible en formato CSV como 
 
 ### 3.2 Fuente complementaria: RMV, UIT y Canasta Básica
 
-Para enriquecer el análisis e incorporar referencia macroeconómica, se integra una tabla de indicadores de referencia económica construida a partir de fuentes públicas oficiales:
+Para complementar el análisis e incluir los datos requeridos para responder las preguntas clave, se integra una tabla de indicadores de referencia económica construida a partir de fuentes públicas oficiales:
 
 - **Remuneración Mínima Vital (RMV):** Publicada por el MTPE. Permite calcular el ratio ingreso/RMV por trabajador, que mide la suficiencia del ingreso laboral frente al piso legal.
 - **Unidad Impositiva Tributaria (UIT):** Publicada por la SUNAT y el MEF. Referencia para clasificar a trabajadores en tramos de ingreso tributario.
 - **Canasta Básica de Consumo (CBC):** Publicada por el INEI con frecuencia anual. Permite calcular cuántas canastas básicas cubre el ingreso del trabajador.
 
-Esta información se integra como `Dim_Ref_Economica` y permite al ETL calcular directamente en la tabla de hechos las métricas derivadas `ratio_ingreso_rmv` y `ratio_ingreso_cbc` sin necesidad de lógica adicional en Power BI.
+Esta información se integra en el modelo de datos como la dimensión `Dim_Ref_Economica` y permite al sistema calcular directamente en la fact table las métricas derivadas `ratio_ingreso_rmv` y `ratio_ingreso_cbc`.
 
 ---
 
-## 4. Modelo Dimensional
+## 4. Modelamiento de data dimensional
 
 ### 4.1 Tipo de modelo y granularidad
 
-El modelo adoptado es el **esquema estrella (star schema)**, con una tabla de hechos central y siete dimensiones conectadas directamente. Este diseño garantiza óptimo rendimiento en consultas analíticas y máxima simplicidad para el usuario final en Power BI.
+El modelo adoptado es el **esquema estrella (star schema)**, con una fact table central y siete dimensiones conectadas directamente. Este diseño garantiza óptimo rendimiento en consultas analíticas y máxima simplicidad para el usuario final en una plataforma de análisis visual como Power BI.
 
 - **Proceso de negocio:** Registro de la situación laboral e ingreso de un trabajador en un periodo de encuesta.
 - **Granularidad:** Una fila en la tabla de hechos equivale a un trabajador en su ocupación principal, en un mes y año de encuesta específico. Este es el nivel más atómico que permite el Módulo 500.
 
-### 4.2 Tabla de hechos: `Fact_Empleo_Ingreso`
+### 4.2 Fact table: `Fact_Empleo_Ingreso`
 
 | Columna | Tipo | Descripción |
 |---|---|---|
@@ -99,7 +99,7 @@ El modelo adoptado es el **esquema estrella (star schema)**, con una tabla de he
 | `flag_subocupado_horas` | BOOLEAN | 1 si el trabajador quería y podía laborar más horas (subempleo visible). |
 | `flag_acceso_seguro` | BOOLEAN | 1 si el trabajador declara tener acceso a seguro de salud por el trabajo. |
 
-### 4.3 Dimensiones
+### 4.3 Descripción de las dimensiones
 
 #### `Dim_Tiempo`
 
