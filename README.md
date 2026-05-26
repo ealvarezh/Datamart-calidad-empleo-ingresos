@@ -14,10 +14,9 @@ La empresa propuesta para este proyecto es el **Ministerio de Trabajo y Promoci�
 - ¿Cómo han evolucionado estos indicadores a lo largo del tiempo, comparando periodos anuales?
 
 A partir de estas preguntas clave, se formaliza el problema de negocio, se identifican las fuentes de datos requeridas, y se propone una solución basada en Business Intelligence.
+
 ## 2. Planteamiento del Problema
-
-> **Enunciado del problema:** El MTPE requiere un sistema analítico que permita monitorear la calidad del empleo y los niveles de ingreso laboral en el Perú, a partir de los microdatos de la ENAHO 2024 (Módulo 500: Empleo e Ingresos), complementados con indicadores macroeconómicos de referencia (RMV, UIT, Canasta Básica de Consumo). El datamart debe responder preguntas sobre informalidad laboral, subocupación por horas, distribución del ingreso relativo a la RMV y acceso a beneficios laborales, segmentadas por ocupación, sector económico, territorio y perfil demográfico del trabajador.
-
+El MTPE requiere un sistema analítico que permita monitorear la calidad del empleo y los niveles de ingreso laboral en el Perú, a partir de los microdatos de la ENAHO 2024 (Módulo 500: Empleo e Ingresos), complementados con indicadores macroeconómicos de referencia (RMV, UIT, Canasta Básica de Consumo). El datamart debe responder preguntas sobre informalidad laboral, subocupación por horas, distribución del ingreso relativo a la RMV y acceso a beneficios laborales, segmentadas por ocupación, sector económico, territorio y perfil demográfico del trabajador.
 Este planteamiento determina cuatro componentes fundamentales que el datamart debe cubrir:
 
 - **Proceso de negocio:** Seguimiento de la situación laboral e ingresos de los trabajadores peruanos encuestados por ENAHO.
