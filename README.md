@@ -5,7 +5,7 @@
 
 # 1 Marco teórico
 
-La *Inteligencia de Negocios* o Business Intelligence —BI— se entiende como el conjunto de procesos y tecnologías que permiten recolectar, gestionar y analizar datos para generar información útil en la toma de decisiones (IBM, s. f.). Asimismo, Oracle sostiene que la BI permite a las organizaciones tomar mejores decisiones, actuar con información y mejorar sus procesos mediante datos presentados de forma comprensible y oportuna (Oracle, 2021).
+La *Inteligencia de Negocios* o Business Intelligence (BI) se entiende como el conjunto de procesos y tecnologías que permiten recolectar, gestionar y analizar datos para generar información útil en la toma de decisiones (IBM, s. f.). Asimismo, Oracle sostiene que la BI permite a las organizaciones tomar mejores decisiones, actuar con información y mejorar sus procesos mediante datos presentados de forma comprensible y oportuna (Oracle, 2021).
 
 Un *data warehouse* es un repositorio centralizado diseñado para integrar datos provenientes de distintas fuentes y facilitar actividades de análisis, consulta y reportería. Su función principal no es registrar operaciones diarias, sino almacenar información histórica y organizada para apoyar la toma de decisiones estratégicas (Oracle, 2023).
 
