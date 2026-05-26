@@ -223,11 +223,3 @@ El proceso ETL (Extracción, Transformación y Carga) sigue los pasos descritos 
 5. **Carga** en base de datos relacional (PostgreSQL o SQL Server) con el modelo estrella definido. Exportación del modelo a Power BI para construcción del dashboard.
 
 ---
-
-## 8. Conclusión
-
-El datamart de Calidad del Empleo e Ingresos Laborales propuesto representa una solución de inteligencia de negocios enfocada y funcional para las necesidades del MTPE. Al centrarse en un proceso de negocio bien delimitado (la situación laboral e ingresos de los trabajadores encuestados por ENAHO) y en preguntas específicas que el cliente necesita responder, el modelo logra el equilibrio entre riqueza analítica y simplicidad de uso.
-
-La integración de indicadores macroeconómicos de referencia (RMV, UIT, Canasta Básica) como dimensión externa eleva el valor del producto más allá de un simple repositorio de microdatos: convierte los ingresos brutos en una medida relativa de suficiencia salarial, que es exactamente la métrica que los formuladores de política laboral necesitan para tomar decisiones basadas en evidencia.
-
-El esquema estrella garantiza consultas rápidas en Power BI y un modelo que puede ser entendido y validado por usuarios técnicos y no técnicos del Ministerio, cumpliendo el principio rector del diseño dimensional: **un buen datamart no es el que tiene más datos, sino el que resuelve problemas de negocio.**
