@@ -2,7 +2,18 @@
 
 ---
 
-## 1. Descripción de la empresa
+
+# 1 Marco teórico
+
+La *Inteligencia de Negocios* o Business Intelligence —BI— se entiende como el conjunto de procesos y tecnologías que permiten recolectar, gestionar y analizar datos para generar información útil en la toma de decisiones (IBM, s. f.). Asimismo, Oracle sostiene que la BI permite a las organizaciones tomar mejores decisiones, actuar con información y mejorar sus procesos mediante datos presentados de forma comprensible y oportuna (Oracle, 2021).
+
+Un *data warehouse* es un repositorio centralizado diseñado para integrar datos provenientes de distintas fuentes y facilitar actividades de análisis, consulta y reportería. Su función principal no es registrar operaciones diarias, sino almacenar información histórica y organizada para apoyar la toma de decisiones estratégicas (Oracle, 2023).
+
+Un *datamart* es una forma más específica de data warehouse, enfocada en un área, departamento o tema particular. A diferencia del data warehouse, que abarca múltiples áreas de la organización, el datamart tiene un alcance más limitado y permite responder necesidades analíticas concretas de un grupo de usuarios o línea de negocio (Oracle, s. f.; IBM, s. f.).
+
+Los principales elementos de una solución de BI son las *fuentes de datos, los **procesos ETL, el **almacenamiento analítico, el **modelo dimensional, los **indicadores* y las *herramientas de visualización*. Dentro del modelo dimensional, el esquema estrella organiza la información mediante tablas de hechos y dimensiones, lo que facilita el filtrado, agrupamiento y análisis de métricas en herramientas como Power BI (Microsoft, 2024).
+
+## 2. Descripción de la empresa
 
 La empresa propuesta para este proyecto es el **Ministerio de Trabajo y Promoción del Empleo del Perú (MTPE)**. Esta entidad es la responsable de formular, coordinar y supervisar las políticas nacionales en materia de empleo, capacitación laboral, seguridad social y fomento de la formalización del trabajo. El MTPE maneja anualmente grandes volúmenes de información estadística sobre el mercado laboral peruano, principalmente a través de la Encuesta Nacional de Hogares (ENAHO) producida por el INEI. Sin embargo, el acceso a estos datos se realiza comúnmente mediante consulta directa de microdatos crudos, sin un sistema analítico que permita responder preguntas operativas de manera ágil y consistente. Los equipos técnicos del Ministerio requieren cruzar variables de empleo, ingresos, formalidad, tipo de contrato y cobertura de seguridad social con información geográfica y sectorial — tareas que actualmente consumen tiempo excesivo y generan inconsistencias entre áreas. Los servidores públicos necesitan responder, de manera rápida e interactiva, las siguientes preguntas clave:
 
@@ -15,7 +26,7 @@ La empresa propuesta para este proyecto es el **Ministerio de Trabajo y Promoci�
 
 A partir de estas preguntas clave, se formaliza el problema de negocio, se identifican las fuentes de datos requeridas, y se propone una solución basada en Business Intelligence.
 
-## 2. Planteamiento del Problema
+## 3. Planteamiento del Problema
 El MTPE requiere un sistema analítico que permita monitorear la calidad del empleo y los niveles de ingreso laboral en el Perú, a partir de los microdatos de la ENAHO 2024 (Módulo 500: Empleo e Ingresos), complementados con indicadores macroeconómicos de referencia (RMV, UIT, Canasta Básica de Consumo). El datamart debe responder preguntas sobre informalidad laboral, subocupación por horas, distribución del ingreso relativo a la RMV y acceso a beneficios laborales, segmentadas por ocupación, sector económico, territorio y perfil demográfico del trabajador.
 Este planteamiento determina cuatro componentes fundamentales que el datamart debe cubrir:
 
@@ -26,9 +37,9 @@ Este planteamiento determina cuatro componentes fundamentales que el datamart de
 
 ---
 
-## 3. Fuentes de Datos
+## 4. Fuentes de Datos
 
-### 3.1 Fuente principal: ENAHO 2024, Módulo 500
+### 4.1 Fuente principal: ENAHO 2024, Módulo 500
 
 La Encuesta Nacional de Hogares (ENAHO) es producida anualmente por el Instituto Nacional de Estadística e Informática (INEI). El **Módulo 500** corresponde a Empleo e Ingresos y recoge información a nivel de persona sobre situación laboral, ocupación, tipo de contrato, ingresos, horas trabajadas y acceso a beneficios.
 
@@ -57,7 +68,7 @@ El archivo utilizado es `ENAHO01A-2024-500.SAV` (disponible en formato CSV como 
 | `P203`, `P204`, `P208A` | `Dim_Trabajador` | Sexo, edad, nivel educativo. Datos del módulo de características del miembro del hogar. |
 | `ANIO`, `MES` | `Dim_Tiempo` | Año y mes de la encuesta. Permite análisis de tendencias temporales. |
 
-### 3.2 Fuente complementaria: RMV, UIT y Canasta Básica
+### 4.2 Fuente complementaria: RMV, UIT y Canasta Básica
 
 Para complementar el análisis e incluir los datos requeridos para responder las preguntas clave, se integra una tabla de indicadores de referencia económica construida a partir de fuentes públicas oficiales:
 
@@ -69,16 +80,16 @@ Esta información se integra en el modelo de datos como la dimensión `Dim_Ref_E
 
 ---
 
-## 4. Modelamiento de data dimensional
+## 5. Modelamiento de data dimensional
 
-### 4.1 Tipo de modelo y granularidad
+### 5.1 Tipo de modelo y granularidad
 
 El modelo adoptado es el **esquema estrella (star schema)**, con una fact table central y siete dimensiones conectadas directamente. Este diseño garantiza óptimo rendimiento en consultas analíticas y máxima simplicidad para el usuario final en una plataforma de análisis visual como Power BI.
 
 - **Proceso de negocio:** Registro de la situación laboral e ingreso de un trabajador en un periodo de encuesta.
 - **Granularidad:** Una fila en la tabla de hechos equivale a un trabajador en su ocupación principal, en un mes y año de encuesta específico. Este es el nivel más atómico que permite el Módulo 500.
 
-### 4.2 Fact table: `Fact_Empleo_Ingreso`
+### 5.2 Fact table: `Fact_Empleo_Ingreso`
 
 | Columna | Tipo | Descripción |
 |---|---|---|
@@ -99,7 +110,7 @@ El modelo adoptado es el **esquema estrella (star schema)**, con una fact table 
 | `flag_subocupado_horas` | BOOLEAN | 1 si el trabajador quería y podía laborar más horas (subempleo visible). |
 | `flag_acceso_seguro` | BOOLEAN | 1 si el trabajador declara tener acceso a seguro de salud por el trabajo. |
 
-### 4.3 Descripción de las dimensiones
+### 5.3 Descripción de las dimensiones
 
 #### `Dim_Tiempo`
 
@@ -187,13 +198,13 @@ Dimensión externa construida a partir de publicaciones oficiales del MEF, SUNAT
 
 ---
 
-## 5. Decisiones de Diseño del Modelo
+## 6. Decisiones de Diseño del Modelo
 
 Las decisiones de diseño del datamart están orientadas por las necesidades específicas del MTPE. Se opta por una única `Dim_Geografia` con todos los niveles jerárquicos (región, departamento, provincia, dominio). El MTPE analiza principalmente a nivel de departamento y dominio geográfico, por lo que la consolidación simplifica el modelo sin perder capacidad analítica. La condición de formalidad (formal/informal) es una característica cualitativa del puesto de trabajo, no una métrica numérica aditiva. Por ello se ubica en `Dim_Tipo_Empleo` como atributo derivado (combinación de contrato escrito + registro SUNAT), lo que permite filtrar y segmentar, pero no sumar. Las columnas `ratio_ingreso_rmv` y `ratio_ingreso_cbc` se calculan durante el proceso de carga y se almacenan en la tabla de hechos. Esto evita cálculos en tiempo de consulta en Power BI y garantiza consistencia en todos los reportes. Además, para las horas trabajadas se utiliza la versión imputada (`I513T`) en lugar de la cruda (`P513T`), dado que el INEI aplica procedimientos estadísticos para completar valores faltantes de forma consistente con el diseño muestral. La variable `FAC500A` se incluye como métrica en la tabla de hechos y su uso es obligatorio en todas las medidas agregadas del dashboard. Sin este factor, los resultados no son representativos a nivel nacional ni departamental.
 
 ---
 
-## 6. Indicadores Propuestos para el Dashboard
+## 7. Indicadores Propuestos para el Dashboard
 
 El dashboard en Power BI debe responder directamente las preguntas de negocio del MTPE. Los siguientes indicadores se derivan de las métricas de la tabla de hechos, aplicando el factor de expansión correspondiente.
 
@@ -208,7 +219,7 @@ El dashboard en Power BI debe responder directamente las preguntas de negocio de
 
 ---
 
-## 7. Estrategia de Integración de Fuentes
+## 8. Estrategia de Integración de Fuentes
 
 El proceso ETL (Extracción, Transformación y Carga) sigue los pasos descritos a continuación para integrar la ENAHO con los datos externos:
 
@@ -223,3 +234,15 @@ El proceso ETL (Extracción, Transformación y Carga) sigue los pasos descritos 
 5. **Carga** en base de datos relacional (PostgreSQL o SQL Server) con el modelo estrella definido. Exportación del modelo a Power BI para construcción del dashboard.
 
 ---
+## 9. Referencias bibliográficas
+- IBM. (s. f.). What is business intelligence (BI)? IBM Think.
+- https://www.ibm.com/think/topics/business-intelligence?utm
+
+- Microsoft. (2024). Understand star schema and the importance for Power BI. Microsoft Learn.
+
+- Oracle. (2021). What is business intelligence? Oracle.
+
+- Oracle. (2023). What is a data warehouse? Oracle.
+
+- Oracle. (s. f.). Data mart concepts. Oracle Documentation.
+https://docs.oracle.com/html/E10312_01/dm_concepts.htm?utm_source
