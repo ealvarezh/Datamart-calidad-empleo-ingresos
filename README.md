@@ -131,8 +131,6 @@ Se crea una dimensión para representar las regiones macrogeográficas del Perú
 | `id_region` (PK) | Llave primaria de la región |
 | `region` | Nombre de la región macrogeográfica del Perú |
 
----
-
 #### `Dim_Departamento`
 
 Esta dimensión representa los departamentos del Perú, vinculados a su región correspondiente. Es el nivel principal de análisis del cliente para la mayoría de los reportes.
@@ -143,8 +141,6 @@ Esta dimensión representa los departamentos del Perú, vinculados a su región 
 | `departamento` | Nombre del departamento |
 | `id_region` (FK) | Llave foránea hacia `Dim_Región` |
 
----
-
 #### `Dim_Provincia`
 
 La dimensión de provincia permite analizar los datos dentro de cada departamento, proporcionando un nivel intermedio entre departamento y distrito.
@@ -154,8 +150,6 @@ La dimensión de provincia permite analizar los datos dentro de cada departament
 | `id_provincia` (PK) | Llave primaria de la provincia |
 | `provincia` | Nombre de la provincia |
 | `id_departamento` (FK) | Llave foránea hacia `Dim_Departamento` |
-
----
 
 #### `Dim_Distrito` (opcional)
 
