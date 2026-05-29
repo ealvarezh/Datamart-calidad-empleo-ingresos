@@ -122,17 +122,51 @@ El modelo adoptado es el **esquema estrella (star schema)**, con una fact table 
 | `trimestre` | Trimestre derivado del mes |
 | `rmv_vigente` | RMV en soles vigente en ese mes/año (fuente: MTPE) |
 
-#### `Dim_Geografia`
+#### `Dim_Región`
 
-Se opta por una única dimensión geográfica con todos los niveles jerárquicos, dado que el cliente analiza principalmente por departamento y dominio (urbano/rural) y no requiere filtrar por nivel de región o provincia de forma independiente. Si el cliente lo requiriese en el futuro, esta dimensión puede descomponerse en `Dim_Region` y `Dim_Departamento`.
+Se crea una dimensión para representar las regiones macrogeográficas del Perú. Esta dimensión permite agrupar departamentos y realizar análisis a nivel regional.
 
 | Columna | Descripción |
 |---|---|
-| `id_geografia` (PK) | Llave primaria |
+| `id_region` (PK) | Llave primaria de la región |
+| `region` | Nombre de la región macrogeográfica del Perú |
+
+---
+
+#### `Dim_Departamento`
+
+Esta dimensión representa los departamentos del Perú, vinculados a su región correspondiente. Es el nivel principal de análisis del cliente para la mayoría de los reportes.
+
+| Columna | Descripción |
+|---|---|
+| `id_departamento` (PK) | Llave primaria del departamento |
+| `departamento` | Nombre del departamento |
+| `id_region` (FK) | Llave foránea hacia `Dim_Región` |
+
+---
+
+#### `Dim_Provincia`
+
+La dimensión de provincia permite analizar los datos dentro de cada departamento, proporcionando un nivel intermedio entre departamento y distrito.
+
+| Columna | Descripción |
+|---|---|
+| `id_provincia` (PK) | Llave primaria de la provincia |
+| `provincia` | Nombre de la provincia |
+| `id_departamento` (FK) | Llave foránea hacia `Dim_Departamento` |
+
+---
+
+#### `Dim_Distrito` (opcional)
+
+Esta dimensión incluye los distritos con información más granular, como UBIGEO, dominio geográfico, área y estrato socioeconómico, útil para análisis detallados o futuros filtros.
+
+| Columna | Descripción |
+|---|---|
+| `id_distrito` (PK) | Llave primaria del distrito |
+| `distrito` | Nombre del distrito |
 | `ubigeo` | Código UBIGEO de 6 dígitos (región + departamento + provincia + distrito) |
-| `region` | Región macrogeográfica del Perú |
-| `departamento` | Departamento (nivel principal de análisis del MTPE) |
-| `provincia` | Provincia dentro del departamento |
+| `id_provincia` (FK) | Llave foránea hacia `Dim_Provincia` |
 | `dominio` | Dominio geográfico: Lima Metropolitana, Costa urbana, Sierra urbana, Selva urbana, Rural sierra, Rural selva |
 | `area` | Urbano / Rural |
 | `estrato` | Estrato socioeconómico del conglomerado |
