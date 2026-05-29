@@ -94,7 +94,10 @@ El modelo adoptado es el **esquema estrella (star schema)**, con una fact table 
 | Columna | Tipo | Descripción |
 |---|---|---|
 | `id_tiempo` (FK) | INTEGER | Llave foránea a Dim_Tiempo |
-| `id_geografia` (FK) | INTEGER | Llave foránea a Dim_Geografia |
+| `id_region` (FK) | INTEGER | Llave foránea a Dim_Región |
+| `id_departamento` (FK) | INTEGER | Llave foránea a Dim_Departamento |
+| `id_provincia` (FK) | INTEGER | Llave foránea a Dim_Provincia |
+| `id_distrito` (FK) | INTEGER | Llave foránea a Dim_Distrito (opcional) |
 | `id_ocupacion` (FK) | INTEGER | Llave foránea a Dim_Ocupacion |
 | `id_sector` (FK) | INTEGER | Llave foránea a Dim_Sector |
 | `id_tipo_empleo` (FK) | INTEGER | Llave foránea a Dim_Tipo_Empleo |
