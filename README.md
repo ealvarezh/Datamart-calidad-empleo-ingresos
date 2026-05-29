@@ -133,34 +133,31 @@ Se crea una dimensión para representar las regiones macrogeográficas del Perú
 
 #### `Dim_Departamento`
 
-Esta dimensión representa los departamentos del Perú, vinculados a su región correspondiente. Es el nivel principal de análisis del cliente para la mayoría de los reportes.
+Esta dimensión representa los departamentos del Perú. No existen llaves foráneas; toda la información está directamente disponible para análisis.
 
 | Columna | Descripción |
 |---|---|
 | `id_departamento` (PK) | Llave primaria del departamento |
 | `departamento` | Nombre del departamento |
-| `id_region` (FK) | Llave foránea hacia `Dim_Región` |
 
 #### `Dim_Provincia`
 
-La dimensión de provincia permite analizar los datos dentro de cada departamento, proporcionando un nivel intermedio entre departamento y distrito.
+La dimensión de provincia permite analizar los datos dentro de cada departamento. Toda la información está directamente disponible sin relaciones.
 
 | Columna | Descripción |
 |---|---|
 | `id_provincia` (PK) | Llave primaria de la provincia |
 | `provincia` | Nombre de la provincia |
-| `id_departamento` (FK) | Llave foránea hacia `Dim_Departamento` |
 
-#### `Dim_Distrito` (opcional)
+#### `Dim_Distrito`
 
-Esta dimensión incluye los distritos con información más granular, como UBIGEO, dominio geográfico, área y estrato socioeconómico, útil para análisis detallados o futuros filtros.
+Esta dimensión incluye los distritos con información más granular, como UBIGEO, dominio geográfico, área y estrato socioeconómico. Toda la información está a nivel de hecho, sin FK.
 
 | Columna | Descripción |
 |---|---|
 | `id_distrito` (PK) | Llave primaria del distrito |
 | `distrito` | Nombre del distrito |
 | `ubigeo` | Código UBIGEO de 6 dígitos (región + departamento + provincia + distrito) |
-| `id_provincia` (FK) | Llave foránea hacia `Dim_Provincia` |
 | `dominio` | Dominio geográfico: Lima Metropolitana, Costa urbana, Sierra urbana, Selva urbana, Rural sierra, Rural selva |
 | `area` | Urbano / Rural |
 | `estrato` | Estrato socioeconómico del conglomerado |
