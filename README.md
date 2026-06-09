@@ -60,13 +60,16 @@ El archivo utilizado es `ENAHO01A-2024-500.SAV` (disponible en formato CSV como 
 #### Variables seleccionadas para dimensiones
 
 | Variable ENAHO | Dimensión destino | Descripción |
-|---|---|---|
-| `UBIGEO`, `DOMINIO`, `ESTRATO` | `Dim_Geografia` | Ubigeo (6 dígitos), dominio geográfico (Lima Met., resto urbano, rural, selva) y estrato. |
-| `P505R4` | `Dim_Ocupacion` | Código y descripción de la ocupación principal según Clasificación Nacional de Ocupaciones (CNO-2015). |
-| `P506R4` | `Dim_Sector` | Actividad económica del empleador según CIIU revisión 4. Incluye sector agrupado. |
+|---|---|---|---|
+| `UBIGEO` | `Dim_Departamento`, `Dim_Provincia`, `Dim_Distrito` | Código UBIGEO de 6 dígitos. Se descompone en: primeros 2 dígitos → departamento, 4 dígitos → provincia, 6 dígitos → distrito. |
+| `DOMINIO` | `Dim_Region`, `Dim_Distrito` | Dominio geográfico (1=Costa Norte, 2=Costa Centro, 3=Costa Sur, 4=Sierra Norte, 5=Sierra Centro, 6=Sierra Sur, 7=Selva, 8=Lima Metropolitana). Base para `Dim_Region`. |
+| `ESTRATO` | `Dim_Distrito` | Estrato socioeconómico del conglomerado muestral. |
+| `P505R4` | `Dim_Ocupacion` | Código de la ocupación principal según Clasificación Nacional de Ocupaciones (CNO-2015). |
+| `P506R4` | `Dim_Sector` | Código de la actividad económica del empleador según CIIU revisión 4. |
 | `P507`, `P510`, `P510A1`, `P511A`, `P512A` | `Dim_Tipo_Empleo` | Categoría ocupacional, tipo de empleador, formalidad SUNAT, tipo de contrato y tamaño de empresa. |
-| `P203`, `P204`, `P208A` | `Dim_Trabajador` | Sexo, edad, nivel educativo. Datos del módulo de características del miembro del hogar. |
-| `ANIO`, `MES` | `Dim_Tiempo` | Año y mes de la encuesta. Permite análisis de tendencias temporales. |
+| `P203`, `P207`, `P208A`, `P209` | `Dim_Trabajador` | Relación de parentesco (jefe de hogar), sexo, edad en años, nivel educativo. |
+| `AÑO`, `MES` | `Dim_Tiempo` | Año y mes de la encuesta. |
+| `P5581A`–`P55810A` | `Fact_Empleo_Ingreso` | Afiliación a seguros de salud (SIS, ESSALUD, FFAA/PNP, privado, EPS, etc.). Derivado: `flag_acceso_seguro`. |
 
 ### 4.2 Fuente complementaria: RMV, UIT y Canasta Básica
 
@@ -84,7 +87,7 @@ Esta información se integra en el modelo de datos como la dimensión `Dim_Ref_E
 
 ### 5.1 Tipo de modelo y granularidad
 
-El modelo adoptado es el **esquema estrella (star schema)**, con una fact table central y siete dimensiones conectadas directamente. Este diseño garantiza óptimo rendimiento en consultas analíticas y máxima simplicidad para el usuario final en una plataforma de análisis visual como Power BI.
+El modelo adoptado es el **esquema estrella (star schema)**, con una fact table central y diez dimensiones conectadas directamente. La dimensión geográfica se ha modelado de forma desagregada en cuatro dimensiones independientes (`Dim_Region`, `Dim_Departamento`, `Dim_Provincia`, `Dim_Distrito`) para permitir análisis jerárquico a cualquier nivel de detalle territorial. Este diseño garantiza óptimo rendimiento en consultas analíticas y máxima flexibilidad para el usuario final en una plataforma de análisis visual como Power BI.
 
 - **Proceso de negocio:** Registro de la situación laboral e ingreso de un trabajador en un periodo de encuesta.
 - **Granularidad:** Una fila en la tabla de hechos equivale a un trabajador en su ocupación principal, en un mes y año de encuesta específico. Este es el nivel más atómico que permite el Módulo 500.
@@ -127,43 +130,50 @@ El modelo adoptado es el **esquema estrella (star schema)**, con una fact table 
 
 #### `Dim_Región`
 
-Se crea una dimensión para representar las regiones macrogeográficas del Perú. Esta dimensión permite agrupar departamentos y realizar análisis a nivel regional.
+Se crea una dimensión para representar los dominios geográficos de la ENAHO, derivados de la variable `DOMINIO`. Esta dimensión permite agrupar por dominio geográfico (Costa Norte, Costa Centro, Costa Sur, Sierra Norte, Sierra Centro, Sierra Sur, Selva, Lima Metropolitana) y realizar análisis comparativos entre estas macrozonas. No existen llaves foráneas; toda la información está directamente disponible para análisis.
 
 | Columna | Descripción |
 |---|---|
-| `id_region` (PK) | Llave primaria de la región |
-| `region` | Nombre de la región macrogeográfica del Perú |
+| `id_region` (PK) | Llave primaria (1–8, corresponde al código DOMINIO) |
+| `nombre_region` | Nombre del dominio geográfico (Costa Norte, Costa Centro, etc.) |
 
 #### `Dim_Departamento`
 
-Esta dimensión representa los departamentos del Perú. No existen llaves foráneas; toda la información está directamente disponible para análisis.
+Esta dimensión representa los 25 departamentos del Perú, mapeados desde los primeros 2 dígitos del código UBIGEO. Incluye una clasificación en macro-región (Costa, Sierra, Selva, o combinaciones) para facilitar análisis agregados. No existen llaves foráneas; toda la información está directamente disponible para análisis.
 
 | Columna | Descripción |
 |---|---|
-| `id_departamento` (PK) | Llave primaria del departamento |
-| `departamento` | Nombre del departamento |
+| `id_departamento` (PK) | Llave primaria (código UBIGEO de 2 dígitos: 01–25) |
+| `cod_departamento` | Código de departamento de 2 caracteres (ej. '15' = Lima) |
+| `nombre_departamento` | Nombre del departamento |
+| `macro_region` | Macro-región geográfica: Costa, Sierra, Selva, o combinaciones |
 
 #### `Dim_Provincia`
 
-La dimensión de provincia permite analizar los datos dentro de cada departamento. Toda la información está directamente disponible sin relaciones.
+La dimensión de provincia se construye a partir de los primeros 4 dígitos del UBIGEO (departamento + provincia). Cada provincia se asocia al departamento correspondiente permitiendo navegación jerárquica. Los nombres de provincia se almacenan como código descriptivo; para nombres oficiales se requiere un catálogo UBIGEO externo del INEI.
 
 | Columna | Descripción |
 |---|---|
-| `id_provincia` (PK) | Llave primaria de la provincia |
-| `provincia` | Nombre de la provincia |
+| `id_provincia` (PK) | Llave primaria (código UBIGEO de 4 dígitos) |
+| `cod_provincia` | Código de provincia de 4 caracteres |
+| `nombre_provincia` | Nombre descriptivo (basado en código UBIGEO) |
+| `id_departamento` | Llave foránea opcional a `Dim_Departamento` |
 
 #### `Dim_Distrito`
 
-Esta dimensión incluye los distritos con información más granular, como UBIGEO, dominio geográfico, área y estrato socioeconómico. Toda la información está a nivel de hecho, sin FK.
+Esta dimensión incluye los distritos con información a nivel de código UBIGEO completo (6 dígitos), dominio geográfico, área (Urbano/Rural derivado del dominio) y estrato socioeconómico. Los distritos se vinculan jerárquicamente a provincia y departamento.
 
 | Columna | Descripción |
 |---|---|
-| `id_distrito` (PK) | Llave primaria del distrito |
-| `distrito` | Nombre del distrito |
-| `ubigeo` | Código UBIGEO de 6 dígitos (región + departamento + provincia + distrito) |
-| `dominio` | Dominio geográfico: Lima Metropolitana, Costa urbana, Sierra urbana, Selva urbana, Rural sierra, Rural selva |
-| `area` | Urbano / Rural |
+| `id_distrito` (PK) | Llave primaria (código UBIGEO de 6 dígitos) |
+| `ubigeo` | Código UBIGEO completo (6 dígitos) |
+| `nombre_distrito` | Nombre descriptivo (basado en código UBIGEO) |
+| `dominio` | Código de dominio geográfico (1–8) |
+| `dominio_desc` | Descripción del dominio (Costa Norte, Lima Metropolitana, etc.) |
+| `area` | Urbano / Rural (derivado: dominios 1–8 = Urbano, otros = Rural) |
 | `estrato` | Estrato socioeconómico del conglomerado |
+| `id_departamento` | Llave foránea opcional a `Dim_Departamento` |
+| `id_provincia` | Llave foránea opcional a `Dim_Provincia` |
 
 #### `Dim_Tipo_Empleo`
 
@@ -200,16 +210,16 @@ Esta dimensión concentra los atributos que determinan la calidad formal del ví
 
 #### `Dim_Trabajador`
 
-Esta dimensión almacena el perfil demográfico del trabajador encuestado, que proviene del Módulo 200 (Características de los miembros del hogar) de ENAHO, cruzado por conglomerado, vivienda, hogar y persona.
+Esta dimensión almacena el perfil demográfico del trabajador encuestado, utilizando variables del Módulo 200 (Características de los miembros del hogar) de ENAHO presentes en el dataset combinado. Las variables mapeadas son: `P203` (relación de parentesco → jefe de hogar), `P207` (sexo), `P208A` (edad en años) y `P209` (nivel educativo).
 
 | Columna | Descripción |
 |---|---|
 | `id_trabajador` (PK) | Llave primaria |
-| `sexo` | Masculino / Femenino |
+| `sexo` | Hombre / Mujer |
 | `edad` | Edad en años cumplidos al momento de la encuesta |
 | `grupo_etario` | Joven (14–24), Adulto joven (25–44), Adulto (45–64), Adulto mayor (65+) |
 | `nivel_educativo` | Sin nivel, Primaria, Secundaria, Superior técnica, Superior universitaria, Postgrado |
-| `jefe_de_hogar` | Indicador si la persona es jefe o jefa del hogar |
+| `jefe_de_hogar` | Indicador si la persona es jefe o jefa del hogar (P203 = 1) |
 
 #### `Dim_Ref_Economica`
 
@@ -228,7 +238,7 @@ Dimensión externa construida a partir de publicaciones oficiales del MEF, SUNAT
 
 ## 6. Decisiones de Diseño del Modelo
 
-Las decisiones de diseño del datamart están orientadas por las necesidades específicas del MTPE. Se opta por una única `Dim_Geografia` con todos los niveles jerárquicos (región, departamento, provincia, dominio). El MTPE analiza principalmente a nivel de departamento y dominio geográfico, por lo que la consolidación simplifica el modelo sin perder capacidad analítica. La condición de formalidad (formal/informal) es una característica cualitativa del puesto de trabajo, no una métrica numérica aditiva. Por ello se ubica en `Dim_Tipo_Empleo` como atributo derivado (combinación de contrato escrito + registro SUNAT), lo que permite filtrar y segmentar, pero no sumar. Las columnas `ratio_ingreso_rmv` y `ratio_ingreso_cbc` se calculan durante el proceso de carga y se almacenan en la tabla de hechos. Esto evita cálculos en tiempo de consulta en Power BI y garantiza consistencia en todos los reportes. Además, para las horas trabajadas se utiliza la versión imputada (`I513T`) en lugar de la cruda (`P513T`), dado que el INEI aplica procedimientos estadísticos para completar valores faltantes de forma consistente con el diseño muestral. La variable `FAC500A` se incluye como métrica en la tabla de hechos y su uso es obligatorio en todas las medidas agregadas del dashboard. Sin este factor, los resultados no son representativos a nivel nacional ni departamental.
+Las decisiones de diseño del datamart están orientadas por las necesidades específicas del MTPE. La geografía se modela en cuatro dimensiones desagregadas (`Dim_Region`, `Dim_Departamento`, `Dim_Provincia`, `Dim_Distrito`), siguiendo la jerarquía natural del UBIGEO peruano. Esta separación permite análisis a cualquier nivel de granularidad territorial (desde macro-región hasta distrito) sin perder flexibilidad. `Dim_Region` se deriva de la variable `DOMINIO` de ENAHO (8 dominios geográficos), mientras que `Dim_Departamento`, `Dim_Provincia` y `Dim_Distrito` se extraen del código `UBIGEO` de 6 dígitos (descomposición posicional). Los nombres de los 25 departamentos provienen de un lookup interno incluido en el código ETL; para nombres oficiales de provincias y distritos se requiere el catálogo UBIGEO del INEI. La condición de formalidad (formal/informal) es una característica cualitativa del puesto de trabajo, no una métrica numérica aditiva. Por ello se ubica en `Dim_Tipo_Empleo` como atributo derivado (combinación de contrato escrito + registro SUNAT), lo que permite filtrar y segmentar, pero no sumar. Las columnas `ratio_ingreso_rmv` y `ratio_ingreso_cbc` se calculan durante el proceso de carga y se almacenan en la tabla de hechos. Esto evita cálculos en tiempo de consulta en Power BI y garantiza consistencia en todos los reportes. Además, para las horas trabajadas se utiliza la versión imputada (`I513T`) en lugar de la cruda (`P513T`), dado que el INEI aplica procedimientos estadísticos para completar valores faltantes de forma consistente con el diseño muestral. La variable `FAC500A` se incluye como métrica en la tabla de hechos y su uso es obligatorio en todas las medidas agregadas del dashboard. Sin este factor, los resultados no son representativos a nivel nacional ni departamental.
 
 ---
 
@@ -249,17 +259,35 @@ El dashboard en Power BI debe responder directamente las preguntas de negocio de
 
 ## 8. Estrategia de Integración de Fuentes
 
-El proceso ETL (Extracción, Transformación y Carga) sigue los pasos descritos a continuación para integrar la ENAHO con los datos externos:
+El proceso ETL se implementa en dos etapas secuenciales, cada una con su propio script Python:
 
-1. **Extracción** del CSV de ENAHO 2024 Módulo 500 y del CSV del Módulo 200 (datos demográficos del hogar) desde el portal del INEI.
+### Etapa 1: CSV → Base de Datos Staging (`poblar_db_destino.py`)
 
-2. **Construcción manual** de la tabla `Dim_Ref_Economica` con los valores de RMV, UIT y CBC históricos por año y mes, a partir de fuentes MEF, SUNAT e INEI.
+1. **Extracción** del CSV `2024Empleo e Ingresos.csv` (260 MB, 1,425 columnas, encoding Latin-1) en chunks de 50,000 filas.
+2. **Selección** de las 35 columnas relevantes para el datamart (de un total de 1,425).
+3. **Transformación inicial:** conversión de tipos, limpieza de valores vacíos, normalización de campos numéricos.
+4. **Carga** en la base de datos `ENAHO_Staging`, tabla `ena2024_500`.
 
-3. **Transformación:** creación de llaves surrogadas para todas las dimensiones, derivación de atributos calculados (`flag_formal`, `grupo_etario`, `sector_agrupado`) y cálculo de métricas (`ratio_ingreso_rmv`, `ratio_ingreso_cbc`, `flag_subocupado_horas`).
+### Etapa 2: Staging → Data Mart (`poblar_datamart.py`)
 
-4. **Join** entre Módulo 500 y Módulo 200 por las claves (`CONGLOME`, `VIVIENDA`, `HOGAR`, `CODPERSO`) para incorporar datos demográficos del trabajador en `Dim_Trabajador`.
+5. **Creación del esquema estrella** en `EmpleoIngresos_DM` con 10 dimensiones + 1 tabla de hechos.
+6. **Carga de dimensiones:**
+   - `Dim_Region`: desde los 8 dominios geográficos de ENAHO.
+   - `Dim_Departamento`: 25 departamentos del Perú desde lookup interno (primeros 2 dígitos UBIGEO).
+   - `Dim_Provincia`: provincias únicas desde los 4 primeros dígitos UBIGEO.
+   - `Dim_Distrito`: distritos (UBIGEO 6 dígitos) con dominio, área y estrato.
+   - `Dim_Ocupacion`, `Dim_Sector`, `Dim_Tipo_Empleo`, `Dim_Trabajador`: desde códigos ENAHO con etiquetas descriptivas.
+   - `Dim_Ref_Economica`: desde `data_rmv_cbc_uit.xlsx` (RMV, UIT, CBC históricos).
+   - `Dim_Tiempo`: periodos únicos año-mes con RMV vigente.
+7. **Cálculo de métricas derivadas:** `ratio_ingreso_rmv`, `ratio_ingreso_cbc`, `flag_formal`, `flag_subocupado_horas`, `flag_acceso_seguro`.
+8. **Carga de la tabla de hechos** `Fact_Empleo_Ingreso` mapeando todas las llaves foráneas mediante diccionarios de lookup.
+9. **Exportación** del modelo a Power BI para construcción del dashboard.
 
-5. **Carga** en base de datos relacional (PostgreSQL o SQL Server) con el modelo estrella definido. Exportación del modelo a Power BI para construcción del dashboard.
+### Dashboard (`dashboard_calidad_empleo.py`)
+
+10. **Aplicación Dash** que se conecta al Data Mart y presenta los 6 indicadores con filtros interactivos por departamento, dominio, sector y grupo ocupacional.
+
+---
 
 ---
 ## 9. Referencias bibliográficas

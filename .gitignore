@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Databases
+*.mdf
+*.ldf
+*.bak
+*.ndf
+data_rmv_cbc_uit.xlsx
+2024Empleo e Ingresos.csvgit rm --cached "2024Empleo e Ingresos.csv"
+git rm --cached "data_rmv_cbc_uit.xlsx"
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Environment
+.env
+.env.local
+
+# Logs
+*.log
