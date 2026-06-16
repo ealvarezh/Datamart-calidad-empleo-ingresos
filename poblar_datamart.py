@@ -27,7 +27,7 @@ UID = 'sa'
 PWD = '1234567890'
 STAGING_DB = 'ENAHO_Staging'
 DATAMART_DB = 'EmpleoIngresos_DM'
-REF_EXCEL = r'C:\estela\github\Datamart-calidad-empleo-ingresos\data_rmv_cbc_uit.xlsx'
+REF_EXCEL = r"C:\Users\ea.alvarezh\Downloads\data_rmv_cbc_uit.xlsx"
 
 CONN_STR_MASTER = (f'DRIVER={{ODBC Driver 17 for SQL Server}};'
                    f'SERVER={SERVER};UID={UID};PWD={PWD}')
@@ -231,154 +231,142 @@ def create_datamart_schema(cursor):
     """Crea todas las tablas del esquema estrella."""
     print("\nCreando esquema del Data Mart...")
 
-    schema_sql = """
-    -- Dim_Tiempo
-    IF OBJECT_ID('dbo.Dim_Tiempo', 'U') IS NOT NULL DROP TABLE dbo.Dim_Tiempo;
-    CREATE TABLE dbo.Dim_Tiempo (
-        id_tiempo       INT IDENTITY(1,1) PRIMARY KEY,
-        anio            INT NOT NULL,
-        mes             INT NOT NULL,
-        trimestre       INT NOT NULL,
-        rmv_vigente     DECIMAL(10,2) NULL,
-        UNIQUE (anio, mes)
-    );
+    # Dropear en orden: primero hechos, luego dimensiones
+    drop_statements = [
+        "IF OBJECT_ID('dbo.Fact_Empleo_Ingreso', 'U') IS NOT NULL DROP TABLE dbo.Fact_Empleo_Ingreso",
+        "IF OBJECT_ID('dbo.Dim_Tiempo', 'U') IS NOT NULL DROP TABLE dbo.Dim_Tiempo",
+        "IF OBJECT_ID('dbo.Dim_Region', 'U') IS NOT NULL DROP TABLE dbo.Dim_Region",
+        "IF OBJECT_ID('dbo.Dim_Departamento', 'U') IS NOT NULL DROP TABLE dbo.Dim_Departamento",
+        "IF OBJECT_ID('dbo.Dim_Provincia', 'U') IS NOT NULL DROP TABLE dbo.Dim_Provincia",
+        "IF OBJECT_ID('dbo.Dim_Distrito', 'U') IS NOT NULL DROP TABLE dbo.Dim_Distrito",
+        "IF OBJECT_ID('dbo.Dim_Ocupacion', 'U') IS NOT NULL DROP TABLE dbo.Dim_Ocupacion",
+        "IF OBJECT_ID('dbo.Dim_Sector', 'U') IS NOT NULL DROP TABLE dbo.Dim_Sector",
+        "IF OBJECT_ID('dbo.Dim_Tipo_Empleo', 'U') IS NOT NULL DROP TABLE dbo.Dim_Tipo_Empleo",
+        "IF OBJECT_ID('dbo.Dim_Trabajador', 'U') IS NOT NULL DROP TABLE dbo.Dim_Trabajador",
+        "IF OBJECT_ID('dbo.Dim_Ref_Economica', 'U') IS NOT NULL DROP TABLE dbo.Dim_Ref_Economica",
+    ]
 
-    -- Dim_Region (desde DOMINIO)
-    IF OBJECT_ID('dbo.Dim_Region', 'U') IS NOT NULL DROP TABLE dbo.Dim_Region;
-    CREATE TABLE dbo.Dim_Region (
-        id_region       INT PRIMARY KEY,
-        nombre_region   NVARCHAR(100) NOT NULL
-    );
+    create_statements = [
+        """CREATE TABLE dbo.Dim_Tiempo (
+            id_tiempo       INT IDENTITY(1,1) PRIMARY KEY,
+            anio            INT NOT NULL,
+            mes             INT NOT NULL,
+            trimestre       INT NOT NULL,
+            rmv_vigente     DECIMAL(10,2) NULL,
+            UNIQUE (anio, mes)
+        )""",
+        """CREATE TABLE dbo.Dim_Region (
+            id_region       INT PRIMARY KEY,
+            nombre_region   NVARCHAR(100) NOT NULL
+        )""",
+        """CREATE TABLE dbo.Dim_Departamento (
+            id_departamento     INT PRIMARY KEY,
+            cod_departamento    CHAR(2) NOT NULL,
+            nombre_departamento NVARCHAR(100) NOT NULL,
+            macro_region        NVARCHAR(50) NULL
+        )""",
+        """CREATE TABLE dbo.Dim_Provincia (
+            id_provincia        INT PRIMARY KEY,
+            cod_provincia       CHAR(4) NOT NULL,
+            nombre_provincia    NVARCHAR(100) NULL,
+            id_departamento     INT NULL
+        )""",
+        """CREATE TABLE dbo.Dim_Distrito (
+            id_distrito     INT PRIMARY KEY,
+            ubigeo          CHAR(6) NOT NULL,
+            nombre_distrito NVARCHAR(100) NULL,
+            dominio         INT NULL,
+            dominio_desc    NVARCHAR(100) NULL,
+            area            NVARCHAR(10) NULL,
+            estrato         INT NULL,
+            id_departamento INT NULL,
+            id_provincia    INT NULL
+        )""",
+        """CREATE TABLE dbo.Dim_Ocupacion (
+            id_ocupacion            INT IDENTITY(1,1) PRIMARY KEY,
+            cod_ocupacion_cno       VARCHAR(10) NOT NULL,
+            descripcion_ocupacion   NVARCHAR(200) NULL,
+            grupo_ocupacional       NVARCHAR(100) NULL,
+            UNIQUE (cod_ocupacion_cno)
+        )""",
+        """CREATE TABLE dbo.Dim_Sector (
+            id_sector               INT IDENTITY(1,1) PRIMARY KEY,
+            cod_ciiu_r4             VARCHAR(10) NOT NULL,
+            descripcion_actividad   NVARCHAR(200) NULL,
+            sector_agrupado         NVARCHAR(100) NULL,
+            tipo_sector             NVARCHAR(20) NULL,
+            UNIQUE (cod_ciiu_r4)
+        )""",
+        """CREATE TABLE dbo.Dim_Tipo_Empleo (
+            id_tipo_empleo          INT IDENTITY(1,1) PRIMARY KEY,
+            categoria_ocupacional   NVARCHAR(100) NULL,
+            tipo_empleador          NVARCHAR(100) NULL,
+            formalidad_sunat        NVARCHAR(100) NULL,
+            tipo_contrato           NVARCHAR(100) NULL,
+            tamanio_empresa         NVARCHAR(50)  NULL,
+            flag_formal             BIT NOT NULL DEFAULT 0,
+            UNIQUE (categoria_ocupacional, tipo_empleador, formalidad_sunat,
+                    tipo_contrato, tamanio_empresa)
+        )""",
+        """CREATE TABLE dbo.Dim_Trabajador (
+            id_trabajador           INT IDENTITY(1,1) PRIMARY KEY,
+            sexo                    NVARCHAR(20) NULL,
+            edad                    INT NULL,
+            grupo_etario            NVARCHAR(50) NULL,
+            nivel_educativo         NVARCHAR(50) NULL,
+            jefe_de_hogar           BIT NOT NULL DEFAULT 0
+        )""",
+        """CREATE TABLE dbo.Dim_Ref_Economica (
+            id_ref_economica    INT IDENTITY(1,1) PRIMARY KEY,
+            anio                INT NOT NULL,
+            mes                 INT NOT NULL,
+            rmv_soles           DECIMAL(10,2) NOT NULL,
+            uit_soles           DECIMAL(12,2) NOT NULL,
+            cbc_per_capita      DECIMAL(10,2) NULL,
+            UNIQUE (anio, mes)
+        )""",
+        """CREATE TABLE dbo.Fact_Empleo_Ingreso (
+            id_tiempo           INT NOT NULL,
+            id_region           INT NULL,
+            id_departamento     INT NULL,
+            id_provincia        INT NULL,
+            id_distrito         INT NULL,
+            id_ocupacion        INT NULL,
+            id_sector           INT NOT NULL,
+            id_tipo_empleo      INT NOT NULL,
+            id_trabajador       INT NOT NULL,
+            id_ref_economica    INT NULL,
+            ingreso_principal_mes   DECIMAL(10,2) NULL,
+            horas_principales_sem   DECIMAL(5,1) NULL,
+            horas_secundaria_sem    DECIMAL(5,1) NULL,
+            horas_normales_sem      DECIMAL(5,1) NULL,
+            ratio_ingreso_rmv       DECIMAL(10,3) NULL,
+            ratio_ingreso_cbc       DECIMAL(10,3) NULL,
+            factor_expansion        DECIMAL(16,4) NULL,
+            flag_subocupado_horas   BIT NOT NULL DEFAULT 0,
+            flag_acceso_seguro      BIT NOT NULL DEFAULT 0,
+            FOREIGN KEY (id_tiempo)        REFERENCES dbo.Dim_Tiempo(id_tiempo),
+            FOREIGN KEY (id_region)        REFERENCES dbo.Dim_Region(id_region),
+            FOREIGN KEY (id_departamento)  REFERENCES dbo.Dim_Departamento(id_departamento),
+            FOREIGN KEY (id_provincia)     REFERENCES dbo.Dim_Provincia(id_provincia),
+            FOREIGN KEY (id_distrito)      REFERENCES dbo.Dim_Distrito(id_distrito),
+            FOREIGN KEY (id_ocupacion)     REFERENCES dbo.Dim_Ocupacion(id_ocupacion),
+            FOREIGN KEY (id_sector)        REFERENCES dbo.Dim_Sector(id_sector),
+            FOREIGN KEY (id_tipo_empleo)   REFERENCES dbo.Dim_Tipo_Empleo(id_tipo_empleo),
+            FOREIGN KEY (id_trabajador)    REFERENCES dbo.Dim_Trabajador(id_trabajador),
+            FOREIGN KEY (id_ref_economica) REFERENCES dbo.Dim_Ref_Economica(id_ref_economica)
+        )""",
+    ]
 
-    -- Dim_Departamento
-    IF OBJECT_ID('dbo.Dim_Departamento', 'U') IS NOT NULL DROP TABLE dbo.Dim_Departamento;
-    CREATE TABLE dbo.Dim_Departamento (
-        id_departamento     INT PRIMARY KEY,
-        cod_departamento    CHAR(2) NOT NULL,
-        nombre_departamento NVARCHAR(100) NOT NULL,
-        macro_region        NVARCHAR(50) NULL
-    );
+    for stmt in drop_statements:
+        cursor.execute(stmt)
+        cursor.commit()
 
-    -- Dim_Provincia
-    IF OBJECT_ID('dbo.Dim_Provincia', 'U') IS NOT NULL DROP TABLE dbo.Dim_Provincia;
-    CREATE TABLE dbo.Dim_Provincia (
-        id_provincia        INT PRIMARY KEY,
-        cod_provincia       CHAR(4) NOT NULL,
-        nombre_provincia    NVARCHAR(100) NULL,
-        id_departamento     INT NULL
-    );
+    for stmt in create_statements:
+        cursor.execute(stmt)
+        cursor.commit()
 
-    -- Dim_Distrito
-    IF OBJECT_ID('dbo.Dim_Distrito', 'U') IS NOT NULL DROP TABLE dbo.Dim_Distrito;
-    CREATE TABLE dbo.Dim_Distrito (
-        id_distrito     INT PRIMARY KEY,
-        ubigeo          CHAR(6) NOT NULL,
-        nombre_distrito NVARCHAR(100) NULL,
-        dominio         INT NULL,
-        dominio_desc    NVARCHAR(100) NULL,
-        area            NVARCHAR(10) NULL,
-        estrato         INT NULL,
-        id_departamento INT NULL,
-        id_provincia    INT NULL
-    );
-
-    -- Dim_Ocupacion
-    IF OBJECT_ID('dbo.Dim_Ocupacion', 'U') IS NOT NULL DROP TABLE dbo.Dim_Ocupacion;
-    CREATE TABLE dbo.Dim_Ocupacion (
-        id_ocupacion            INT IDENTITY(1,1) PRIMARY KEY,
-        cod_ocupacion_cno       VARCHAR(10) NOT NULL,
-        descripcion_ocupacion   NVARCHAR(200) NULL,
-        grupo_ocupacional       NVARCHAR(100) NULL,
-        UNIQUE (cod_ocupacion_cno)
-    );
-
-    -- Dim_Sector
-    IF OBJECT_ID('dbo.Dim_Sector', 'U') IS NOT NULL DROP TABLE dbo.Dim_Sector;
-    CREATE TABLE dbo.Dim_Sector (
-        id_sector               INT IDENTITY(1,1) PRIMARY KEY,
-        cod_ciiu_r4             VARCHAR(10) NOT NULL,
-        descripcion_actividad   NVARCHAR(200) NULL,
-        sector_agrupado         NVARCHAR(100) NULL,
-        tipo_sector             NVARCHAR(20) NULL,
-        UNIQUE (cod_ciiu_r4)
-    );
-
-    -- Dim_Tipo_Empleo
-    IF OBJECT_ID('dbo.Dim_Tipo_Empleo', 'U') IS NOT NULL DROP TABLE dbo.Dim_Tipo_Empleo;
-    CREATE TABLE dbo.Dim_Tipo_Empleo (
-        id_tipo_empleo          INT IDENTITY(1,1) PRIMARY KEY,
-        categoria_ocupacional   NVARCHAR(100) NULL,
-        tipo_empleador          NVARCHAR(100) NULL,
-        formalidad_sunat        NVARCHAR(100) NULL,
-        tipo_contrato           NVARCHAR(100) NULL,
-        tamanio_empresa         NVARCHAR(50)  NULL,
-        flag_formal             BIT NOT NULL DEFAULT 0,
-        UNIQUE (categoria_ocupacional, tipo_empleador, formalidad_sunat,
-                tipo_contrato, tamanio_empresa)
-    );
-
-    -- Dim_Trabajador
-    IF OBJECT_ID('dbo.Dim_Trabajador', 'U') IS NOT NULL DROP TABLE dbo.Dim_Trabajador;
-    CREATE TABLE dbo.Dim_Trabajador (
-        id_trabajador           INT IDENTITY(1,1) PRIMARY KEY,
-        sexo                    NVARCHAR(20) NULL,
-        edad                    INT NULL,
-        grupo_etario            NVARCHAR(50) NULL,
-        nivel_educativo         NVARCHAR(50) NULL,
-        jefe_de_hogar           BIT NOT NULL DEFAULT 0
-    );
-
-    -- Dim_Ref_Economica
-    IF OBJECT_ID('dbo.Dim_Ref_Economica', 'U') IS NOT NULL DROP TABLE dbo.Dim_Ref_Economica;
-    CREATE TABLE dbo.Dim_Ref_Economica (
-        id_ref_economica    INT IDENTITY(1,1) PRIMARY KEY,
-        anio                INT NOT NULL,
-        mes                 INT NOT NULL,
-        rmv_soles           DECIMAL(10,2) NOT NULL,
-        uit_soles           DECIMAL(12,2) NOT NULL,
-        cbc_per_capita      DECIMAL(10,2) NULL,
-        UNIQUE (anio, mes)
-    );
-
-    -- Fact_Empleo_Ingreso
-    IF OBJECT_ID('dbo.Fact_Empleo_Ingreso', 'U') IS NOT NULL DROP TABLE dbo.Fact_Empleo_Ingreso;
-    CREATE TABLE dbo.Fact_Empleo_Ingreso (
-        id_tiempo           INT NOT NULL,
-        id_region           INT NULL,
-        id_departamento     INT NULL,
-        id_provincia        INT NULL,
-        id_distrito         INT NULL,
-        id_ocupacion        INT NULL,
-        id_sector           INT NOT NULL,
-        id_tipo_empleo      INT NOT NULL,
-        id_trabajador       INT NOT NULL,
-        id_ref_economica    INT NULL,
-        ingreso_principal_mes   DECIMAL(10,2) NULL,
-        horas_principales_sem   DECIMAL(5,1) NULL,
-        horas_secundaria_sem    DECIMAL(5,1) NULL,
-        horas_normales_sem      DECIMAL(5,1) NULL,
-        ratio_ingreso_rmv       DECIMAL(6,3) NULL,
-        ratio_ingreso_cbc       DECIMAL(6,3) NULL,
-        factor_expansion        DECIMAL(12,4) NULL,
-        flag_subocupado_horas   BIT NOT NULL DEFAULT 0,
-        flag_acceso_seguro      BIT NOT NULL DEFAULT 0,
-        FOREIGN KEY (id_tiempo)        REFERENCES dbo.Dim_Tiempo(id_tiempo),
-        FOREIGN KEY (id_region)        REFERENCES dbo.Dim_Region(id_region),
-        FOREIGN KEY (id_departamento)  REFERENCES dbo.Dim_Departamento(id_departamento),
-        FOREIGN KEY (id_provincia)     REFERENCES dbo.Dim_Provincia(id_provincia),
-        FOREIGN KEY (id_distrito)      REFERENCES dbo.Dim_Distrito(id_distrito),
-        FOREIGN KEY (id_ocupacion)     REFERENCES dbo.Dim_Ocupacion(id_ocupacion),
-        FOREIGN KEY (id_sector)        REFERENCES dbo.Dim_Sector(id_sector),
-        FOREIGN KEY (id_tipo_empleo)   REFERENCES dbo.Dim_Tipo_Empleo(id_tipo_empleo),
-        FOREIGN KEY (id_trabajador)    REFERENCES dbo.Dim_Trabajador(id_trabajador),
-        FOREIGN KEY (id_ref_economica) REFERENCES dbo.Dim_Ref_Economica(id_ref_economica)
-    );
-    """
-    cursor.execute(schema_sql)
-    cursor.commit()
     print("✓ Esquema completo del Data Mart creado.")
-
-
 # ------------------------------ Carga de Datos --------------------------------
 
 def load_dim_region(cursor, conn):
@@ -417,13 +405,14 @@ def load_dim_provincia(cursor, staging_conn, dm_conn):
         FROM ena2024_500
         WHERE ubigeo IS NOT NULL AND LEN(ubigeo) >= 4
     """, staging_conn)
+    df = df.drop_duplicates(subset=['cod_provincia'])  # <-- fix aquí
 
     count = 0
     for _, r in df.iterrows():
         cod_prov = r['cod_provincia']
         cod_dept = r['cod_departamento']
         id_prov = int(cod_prov)
-        id_dept = int(cod_dept) if cod_dept and cod_dept.isdigit() else None
+        id_dept = int(cod_dept) if cod_dept and str(cod_dept).strip().isdigit() else None
         cursor.execute(
             "INSERT INTO dbo.Dim_Provincia (id_provincia, cod_provincia, nombre_provincia, id_departamento) VALUES (?, ?, ?, ?)",
             id_prov, cod_prov, f"Provincia {cod_prov}", id_dept
@@ -433,29 +422,30 @@ def load_dim_provincia(cursor, staging_conn, dm_conn):
     dm_conn.commit()
     print(f"✓ {count} provincias cargadas.")
 
-
 def load_dim_distrito(cursor, staging_conn, dm_conn):
     """Extrae distritos unicos del staging (con area derivada de DOMINIO)."""
     print("\nCargando Dim_Distrito...")
     df = pd.read_sql("""
-        SELECT DISTINCT
-            ubigeo, dominio, estrato,
+        SELECT
+            ubigeo,
+            MAX(dominio)  AS dominio,
+            MAX(estrato)  AS estrato,
             LEFT(ubigeo, 2) AS cod_departamento,
             LEFT(ubigeo, 4) AS cod_provincia
         FROM ena2024_500
         WHERE ubigeo IS NOT NULL AND LEN(ubigeo) = 6
+        GROUP BY ubigeo, LEFT(ubigeo, 2), LEFT(ubigeo, 4)
     """, staging_conn)
 
     count = 0
     for _, r in df.iterrows():
-        ubigeo = r['ubigeo']
+        ubigeo  = str(r['ubigeo']).strip()
         dominio = int(r['dominio']) if pd.notna(r['dominio']) else None
         estrato = int(r['estrato']) if pd.notna(r['estrato']) else None
         id_dist = int(ubigeo)
-        id_dept = int(r['cod_departamento']) if r['cod_departamento'] else None
-        id_prov = int(r['cod_provincia']) if r['cod_provincia'] else None
-        dominio_desc = DOMINIO_DESC.get(dominio, None)
-        # Derivar area: dominios 1-8 son urbanos
+        id_dept = int(str(r['cod_departamento']).strip()) if str(r['cod_departamento']).strip().isdigit() else None
+        id_prov = int(str(r['cod_provincia']).strip())    if str(r['cod_provincia']).strip().isdigit() else None
+        dominio_desc = DOMINIO_DESC.get(dominio)
         area = 'Urbano' if dominio and dominio <= 8 else 'Rural'
 
         cursor.execute(
@@ -470,8 +460,6 @@ def load_dim_distrito(cursor, staging_conn, dm_conn):
 
     dm_conn.commit()
     print(f"✓ {count} distritos cargados.")
-
-
 def load_dim_ocupacion(cursor, staging_conn, dm_conn):
     """Extrae ocupaciones CNO unicas."""
     print("\nCargando Dim_Ocupacion...")
@@ -499,18 +487,19 @@ def load_dim_sector(cursor, staging_conn, dm_conn):
     """Extrae sectores CIIU unicos y los carga con sector_agrupado."""
     print("\nCargando Dim_Sector...")
     df = pd.read_sql("""
-        SELECT DISTINCT s.cod_sector_ciiu, s.tipo_empleador
-        FROM ena2024_500 s
-        WHERE s.cod_sector_ciiu IS NOT NULL AND s.cod_sector_ciiu != ''
+        SELECT
+            cod_sector_ciiu,
+            MAX(tipo_empleador) AS tipo_empleador
+        FROM ena2024_500
+        WHERE cod_sector_ciiu IS NOT NULL AND cod_sector_ciiu != ''
+        GROUP BY cod_sector_ciiu
     """, staging_conn)
 
-    # Si hay tipo_empleador asociado en el mismo registro, usar el primero
-    # Para tipo_sector: si tipo_empleador=2 -> Publico, si no -> Privado
     count = 0
     for _, r in df.iterrows():
-        cod = r['cod_sector_ciiu']
+        cod      = str(r['cod_sector_ciiu']).strip()
         agrupado = get_sector_agrupado(cod)
-        tipo_emp = r.get('tipo_empleador')
+        tipo_emp = r['tipo_empleador']
         tipo_sec = 'Publico' if (pd.notna(tipo_emp) and int(tipo_emp) == 2) else 'Privado'
         cursor.execute(
             "INSERT INTO dbo.Dim_Sector (cod_ciiu_r4, descripcion_actividad, sector_agrupado, tipo_sector) VALUES (?, ?, ?, ?)",
@@ -520,7 +509,6 @@ def load_dim_sector(cursor, staging_conn, dm_conn):
 
     dm_conn.commit()
     print(f"✓ {count} sectores cargados.")
-
 
 def load_dim_tipo_empleo(cursor, staging_conn, dm_conn):
     """Extrae combinaciones unicas de tipo de empleo y calcula flag_formal."""
@@ -857,6 +845,14 @@ def load_fact_empleo_ingreso(cursor, staging_conn, dm_conn):
                 if pd.notna(r[sc]) and int(r[sc]) == 1:
                     seguro_flag = 1
                     break
+            rmv_v = map_rmv.get((anio_i, mes_i), 0)
+            cbc_v = map_cbc.get((anio_i, mes_i), 0)
+            ratio_rmv = round(ingreso / rmv_v, 3) if ingreso and rmv_v > 0 else None
+            ratio_cbc = round(ingreso / cbc_v, 3) if ingreso and cbc_v > 0 else None
+            
+            # Agregar estos caps justo después:
+            ratio_rmv = min(ratio_rmv, 9999999.999) if ratio_rmv is not None else None
+            ratio_cbc = min(ratio_cbc, 9999999.999) if ratio_cbc is not None else None
 
             records.append((
                 id_tiempo, id_region, id_depto, id_prov, id_dist,
@@ -896,7 +892,7 @@ if __name__ == '__main__':
     staging_conn = get_staging_connection()
     dm_conn = get_dm_connection()
     dm_cursor = dm_conn.cursor()
-
+    
     create_datamart_schema(dm_cursor)
 
     # Cargar dimensiones en orden
