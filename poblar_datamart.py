@@ -523,11 +523,11 @@ def load_dim_tipo_empleo(cursor, staging_conn, dm_conn):
 
     count = 0
     for _, r in df.iterrows():
-        cat  = CAT_OCUPACIONAL.get(int(r['categoria_ocupacional']), None) if pd.notna(r['categoria_ocupacional']) else None
-        tip  = TIPO_EMPLEADOR.get(int(r['tipo_empleador']), None) if pd.notna(r['tipo_empleador']) else None
-        form = FORMALIDAD_SUNAT.get(int(r['formalidad_sunat']), None) if pd.notna(r['formalidad_sunat']) else None
-        cont = TIPO_CONTRATO.get(int(r['tipo_contrato']), None) if pd.notna(r['tipo_contrato']) else None
-        tam  = TAMANIO_EMPRESA.get(int(r['tamanio_empresa']), None) if pd.notna(r['tamanio_empresa']) else None
+        cat  = CAT_OCUPACIONAL.get(int(r['categoria_ocupacional']), None) if pd.notna(r['categoria_ocupacional']) else ''
+        tip  = TIPO_EMPLEADOR.get(int(r['tipo_empleador']), None) if pd.notna(r['tipo_empleador']) else ''
+        form = FORMALIDAD_SUNAT.get(int(r['formalidad_sunat']), None) if pd.notna(r['formalidad_sunat']) else ''
+        cont = TIPO_CONTRATO.get(int(r['tipo_contrato']), None) if pd.notna(r['tipo_contrato']) else ''
+        tam  = TAMANIO_EMPRESA.get(int(r['tamanio_empresa']), None) if pd.notna(r['tamanio_empresa']) else ''
 
         # flag_formal: contrato escrito (indefinido, plazo fijo, CAS) Y registrado en SUNAT (Persona Juridica o PN con RUC)
         contrato_formal = int(r['tipo_contrato']) in [1, 2, 4] if pd.notna(r['tipo_contrato']) else False
