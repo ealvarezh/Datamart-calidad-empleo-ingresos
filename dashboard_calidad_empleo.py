@@ -292,7 +292,18 @@ def update_dashboard(depto, dominio, sector, ocupacion):
     ])
 
     # --- KPI: Ingreso promedio mensual (S/.) ---
-    ingresos_pond = (dff['ingreso_principal_mes'].fillna(0) * factor).sum()
+    ingresos_validos = dff['ingreso_principal_mes'].fillna(0)
+    ingresos_validos = ingresos_validos[ingresos_validos > 0]
+    
+    # Winsorización (p1 - p99)
+    p1 = ingresos_validos.quantile(0.05)
+    p99 = ingresos_validos.quantile(0.95)
+    
+    dff_ing = dff.copy()
+    dff_ing['ingreso_ajustado'] = dff_ing['ingreso_principal_mes'].clip(lower=p1, upper=p99)
+    
+    # Promedio ponderado robusto
+    ingresos_pond = (dff_ing['ingreso_ajustado'].fillna(0) * factor).sum()
     ingreso_prom = ingresos_pond / factor_sum if factor_sum > 0 else 0
 
     kpi_ing = html.Div([
@@ -302,7 +313,11 @@ def update_dashboard(depto, dominio, sector, ocupacion):
     ])
 
     # --- KPI: Ratio ingreso / RMV ---
-    ratio_pond = (dff['ratio_ingreso_rmv'].fillna(0) * factor).sum()
+    RMV = 1025
+
+    dff_ing['ratio_ajustado_rmv'] = dff_ing['ingreso_ajustado'] / RMV
+    
+    ratio_pond = (dff_ing['ratio_ajustado_rmv'] * factor).sum()
     ratio_prom = ratio_pond / factor_sum if factor_sum > 0 else 0
 
     kpi_rmv = html.Div([
@@ -374,12 +389,14 @@ def update_dashboard(depto, dominio, sector, ocupacion):
     fig_ing.update_traces(textposition='outside')
 
     # 3. Ratio Ingreso/RMV por Grupo Ocupacional
-    rmv_ocup = dff.groupby('grupo_ocupacional').apply(
-        lambda g: pd.Series({
-            'ratio_rmv_prom': (g['ratio_ingreso_rmv'].fillna(0) * g['factor_expansion']).sum()
-                              / g['factor_expansion'].sum()
-                              if g['factor_expansion'].sum() > 0 else 0
-        })).reset_index().sort_values('ratio_rmv_prom', ascending=True)
+    rmv_ocup = dff_ing.groupby('grupo_ocupacional').apply(
+    lambda g: pd.Series({
+        'ratio_rmv_prom': (
+            g['ratio_ajustado_rmv'].fillna(0) * g['factor_expansion']
+        ).sum() / g['factor_expansion'].sum()
+        if g['factor_expansion'].sum() > 0 else 0
+    })
+    ).reset_index().sort_values('ratio_rmv_prom', ascending=True)
 
     fig_rmv = px.bar(rmv_ocup, x='ratio_rmv_prom', y='grupo_ocupacional',
                      orientation='h', title='Ratio Ingreso / RMV por Grupo Ocupacional',
