@@ -2,7 +2,7 @@
 
 ---
 
-
+Link del DataMart desplegado: `https://bidatamart-production.up.railway.app/`
 # 1. Marco teórico
 
 La *Inteligencia de Negocios* o Business Intelligence (BI) se entiende como el conjunto de procesos y tecnologías que permiten recolectar, gestionar y analizar datos para generar información útil en la toma de decisiones (IBM, s. f.). Asimismo, Oracle sostiene que la BI permite a las organizaciones tomar mejores decisiones, actuar con información y mejorar sus procesos mediante datos presentados de forma comprensible y oportuna (Oracle, 2021).
